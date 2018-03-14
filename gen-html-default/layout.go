@@ -744,13 +744,13 @@ var (
 </head>
 <body>
 
-<header class="header">Header</header>
+<header class="header"></header>
 <div class="body">
 `
 
 	layout_footer = `
 </div>
-<footer class="footer">Footer</footer>
+<footer class="footer"></footer>
 
 </body>
 </html>
