@@ -345,7 +345,6 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 		var fld_comment string
 		var fld_type string
 		var fld_type_link string
-		var fld_type_extra string
 		var fld_opt []string
 
 		switch xfld := fld.(type) {
@@ -395,7 +394,7 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 
 			fld_type = fmt.Sprintf("map&lt;%s, %s&gt;", f_key, f_value)
 		case *fproto.OneofFieldElement:
-			fld_type = fmt.Sprintf("oneof %s.%s", dt.Name, xfld.Name)
+			fld_type = fmt.Sprint("oneof ")
 			fld_type_link = fmt.Sprintf("content-Oneof-%s-%s", slug.Make(dt.FullOriginalName()), slug.Make(xfld.Name))
 
 			var fextra []string
@@ -403,7 +402,9 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 				fextra = append(fextra, oofld.FieldName())
 			}
 
-			fld_type_extra = strings.Join(fextra, ", ")
+			if len(fextra) > 0 {
+				fld_type += "(" + strings.Join(fextra, ", ") + ")"
+			}
 		}
 
 		ftlink := fld_type
@@ -411,19 +412,14 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 			ftlink = fmt.Sprintf(`<a href="#%s">%s</a>`, fld_type_link, fld_type)
 		}
 
-		ftextra := ""
-		if fld_type_extra != "" {
-			ftextra = fmt.Sprintf("<br/>(%s)", fld_type_extra)
-		}
-
 		fmt.Fprintf(l.w, `
 			<tr>
 				<td class="fld-msg-fieldname">%s</td>
-				<td class="fld-msg-type">%s%s</td>
+				<td class="fld-msg-type">%s</td>
 				<td  class="fld-msg-opt">%s</td>
 				<td class="fld-msg-doc">%s</td>
 			</tr>`,
-			fld.FieldName(), ftlink, ftextra, strings.Join(fld_opt, ","), fld_comment)
+			fld.FieldName(), ftlink, strings.Join(fld_opt, ","), fld_comment)
 	}
 
 	_, l.err = fmt.Fprint(l.w, `</table>
