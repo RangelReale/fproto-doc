@@ -74,6 +74,8 @@ func (g *Generator) Generate(dep *fdep.Dep, w io.Writer) error {
 			switch li.layoutItem {
 			case li_service:
 				layout.WriteContentService(e)
+			case li_enum:
+				layout.WriteContentEnum(e)
 			case li_message:
 				layout.WriteContentMessage(e)
 				layout.WriteContentOneofFields(e, helper.GetOneOfFieldList(e.Item.(*fproto.MessageElement).Fields))

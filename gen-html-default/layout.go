@@ -201,14 +201,77 @@ func (l *Layout) WriteContentService(dt *fdep.DepType) {
 	for _, rpc := range element.RPCs {
 		rpc_comment := l.concatComment(rpc.Comment)
 
+		// load field types
+		req_type, req_type_link, err := l.depTypeName(dt, rpc.RequestType)
+		if err != nil {
+			l.err = err
+			return
+		}
+
+		resp_type, resp_type_link, err := l.depTypeName(dt, rpc.ResponseType)
+		if err != nil {
+			l.err = err
+			return
+		}
+
+		if req_type_link != "" {
+			req_type = fmt.Sprintf(`<a href="#%s">%s</a>`, req_type_link, req_type)
+		}
+		if resp_type_link != "" {
+			resp_type = fmt.Sprintf(`<a href="#%s">%s</a>`, resp_type_link, resp_type)
+		}
+
 		fmt.Fprintf(l.w, `
 		<tr>
 			<td class="fld-svc-method">%s</td>
-			<td class="fld-svc-req"><a href="#%s">%s</a></td>
-			<td  class="fld-svc-ret"><a href="#%s">%s</a></td>
+			<td class="fld-svc-req">%s</td>
+			<td  class="fld-svc-ret">%s</td>
 			<td class="fld-svc-doc">%s</td>
 		</tr>`,
-			rpc.Name, "cc", rpc.RequestType, "cc", rpc.ResponseType, rpc_comment)
+			rpc.Name, req_type, resp_type, rpc_comment)
+	}
+
+	_, l.err = fmt.Fprint(l.w, `</table>
+	</div>
+	</div>`)
+}
+
+//
+// Data
+//
+
+func (l *Layout) WriteContentEnum(dt *fdep.DepType) {
+	if l.err != nil {
+		return
+	}
+
+	element := dt.Item.(*fproto.EnumElement)
+
+	en_comment := l.concatComment(element.Comment)
+
+	fmt.Fprint(l.w, `<div class="definition enum">`)
+	if en_comment != "" {
+		fmt.Fprint(l.w, `<div class="description"><p>`)
+		fmt.Fprintf(l.w, `%s`, en_comment)
+		fmt.Fprint(l.w, `</p></div>`)
+	}
+
+	fmt.Fprint(l.w, `<div class="list">
+		<table>
+			<tr>
+				<th>Name</th><th>Value</th><th>Description</th>
+			</tr>`)
+
+	for _, ec := range element.EnumConstants {
+		ec_comment := l.concatComment(ec.Comment)
+
+		fmt.Fprintf(l.w, `
+		<tr>
+			<td class="fld-enum-name">%s</td>
+			<td class="fld-enum-value">%d</td>
+			<td  class="fld-enum-doc">%s</td>
+		</tr>`,
+			ec.Name, ec.Tag, ec_comment)
 	}
 
 	_, l.err = fmt.Fprint(l.w, `</table>
@@ -285,30 +348,18 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 			fld_comment = l.concatComment(xfld.Comment)
 
 			// load field type
-			ft, err := dt.GetType(xfld.Type)
+			var err error
+			fld_type, fld_type_link, err = l.depTypeName(dt, xfld.Type)
 			if err != nil {
 				l.err = err
 				return
-			}
-
-			if ft != nil {
-				fld_type = ft.FullOriginalName()
-				if !ft.IsScalar() && ft.FileDep.DepType == fdep.DepType_Own {
-					switch ft.Item.(type) {
-					case *fproto.EnumElement:
-						fld_type_link = fmt.Sprintf("content-Enum-%s", slug.Make(fld_type))
-					default:
-						fld_type_link = fmt.Sprintf("content-Message-%s", slug.Make(fld_type))
-					}
-				}
-			} else {
-				fld_type = xfld.Type
 			}
 
 			if xfld.Required {
 				fld_opt = append(fld_opt, "required")
 			}
 			if xfld.Repeated {
+				fld_type += "[]"
 				fld_opt = append(fld_opt, "repeated")
 			}
 			if xfld.Optional {
@@ -318,32 +369,26 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 			fld_comment = l.concatComment(xfld.Comment)
 
 			// load key and field type
-			ftkey, err := dt.GetType(xfld.KeyType)
+			f_key, f_key_link, err := l.depTypeName(dt, xfld.KeyType)
+			if err != nil {
+				l.err = err
+				return
+			}
+			f_value, f_value_link, err := l.depTypeName(dt, xfld.Type)
 			if err != nil {
 				l.err = err
 				return
 			}
 
-			ft, err := dt.GetType(xfld.Type)
-			if err != nil {
-				l.err = err
-				return
+			// build links
+			if f_key_link != "" {
+				f_key = fmt.Sprintf(`<a href="#%s">%s</a>`, f_key_link, f_key)
+			}
+			if f_value_link != "" {
+				f_value = fmt.Sprintf(`<a href="#%s">%s</a>`, f_value_link, f_value)
 			}
 
-			var f_key string
-			var f_value string
-			if ftkey != nil {
-				f_key = ftkey.FullOriginalName()
-			} else {
-				f_key = xfld.KeyType
-			}
-			if ft != nil {
-				f_value = ft.FullOriginalName()
-			} else {
-				f_value = xfld.Type
-			}
-
-			fld_type = fmt.Sprintf("map[%s]%s", f_key, f_value)
+			fld_type = fmt.Sprintf("map&lt;%s, %s&gt;", f_key, f_value)
 		case *fproto.OneofFieldElement:
 			fld_type = fmt.Sprintf("oneof %s.%s", dt.Name, xfld.Name)
 			fld_type_link = fmt.Sprintf("content-Oneof-%s-%s", slug.Make(dt.FullOriginalName()), slug.Make(xfld.Name))
@@ -378,6 +423,39 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 
 	_, l.err = fmt.Fprint(l.w, `</table>
 	</div>`)
+}
+
+func (l *Layout) depTypeName(parentType *fdep.DepType, typeName string) (ret_type_name string, ret_type_link string, err error) {
+	// load field type
+	ft, err := parentType.GetType(typeName)
+	if err != nil {
+		return "", "", err
+	}
+
+	if ft != nil {
+		calc_type_name := ft.FullOriginalName()
+		//ret_type_name = ft.FullOriginalName()
+		if parentType.FileDep != nil && !parentType.FileDep.IsSame(ft.FileDep) {
+			// if not same file, return full name
+			ret_type_name = calc_type_name
+			/*} else if ft.OriginalAlias != "" {
+			ret_type_name = fmt.Sprintf("%s [%s]", ft.Name, ft.OriginalAlias)*/
+		} else {
+			ret_type_name = ft.Name
+		}
+		if !ft.IsScalar() && ft.FileDep.DepType == fdep.DepType_Own {
+			switch ft.Item.(type) {
+			case *fproto.EnumElement:
+				ret_type_link = fmt.Sprintf("content-Enum-%s", slug.Make(calc_type_name))
+			default:
+				ret_type_link = fmt.Sprintf("content-Message-%s", slug.Make(calc_type_name))
+			}
+		}
+	} else {
+		ret_type_name = typeName
+	}
+
+	return
 }
 
 func (l *Layout) concatComment(comment *fproto.Comment) string {
@@ -642,8 +720,19 @@ var (
             width: 20%;
         }
 
+        .body .content .definition .list td.fld-enum-name {
+            width: 30%;
+        }
+
+        .body .content .definition .list td.fld-enum-value {
+            width: 10%;
+			text-align: center;
+        }
+
         .body .content .definition .list table.oneof{
             margin-top: 6px;
+			margin-left: 20px;	
+			width: 70%;
         }
 
         .body .content .definition .list table.oneof th.table-title {
