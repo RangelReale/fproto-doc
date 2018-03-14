@@ -564,7 +564,7 @@ var (
         }
 
         .body .content{
-            flex: 1 0 auto;
+            /*flex: 1 0 auto;*/
             line-height: 1.5145em;
             font-size: 15px;
 
@@ -679,7 +679,7 @@ var (
         }
 
         .body .content .definition .list table {
-            width: 75%;
+            width: 90%;
         }
 
         .body .content .definition .list table th {
@@ -732,7 +732,7 @@ var (
         .body .content .definition .list table.oneof{
             margin-top: 6px;
 			margin-left: 20px;	
-			width: 70%;
+			width: 85%;
         }
 
         .body .content .definition .list table.oneof th.table-title {
