@@ -462,15 +462,29 @@ func (l *Layout) concatComment(comment *fproto.Comment) string {
 	var ret string
 
 	if comment != nil && len(comment.Lines) > 0 {
+		// remove empty lines at start and end
+		var rcomments []string
+
+		is_start := false
 		for _, cl := range comment.Lines {
 			ln := strings.TrimSpace(cl)
-			if len(ln) > 0 {
-				if ret != "" {
-					ret += " "
-				}
-				ret += ln
+			if is_start || len(ln) > 0 {
+				rcomments = append(rcomments, cl)
+				is_start = true
 			}
 		}
+
+		// remove spaces from end
+		ct_end_space := len(rcomments)
+		for i := len(rcomments) - 1; i >= 0; i-- {
+			ln := strings.TrimSpace(rcomments[i])
+			if len(ln) > 0 {
+				break
+			}
+			ct_end_space--
+		}
+
+		ret = strings.Join(rcomments[:ct_end_space], "<br/>")
 	}
 	return ret
 }
