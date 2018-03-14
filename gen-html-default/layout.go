@@ -2,6 +2,7 @@ package fproto_doc_html_default
 
 import (
 	"fmt"
+	"html"
 	"io"
 	"strings"
 
@@ -88,7 +89,7 @@ func (l *Layout) WriteContentNs(layoutState LayoutState, nsName string, link str
 	}
 }
 
-func (l *Layout) WriteContentNsItem(layoutState LayoutState, nsName string, link string, fileName string) {
+func (l *Layout) WriteContentNsItem(layoutState LayoutState, nsName string, link string, fileName string, pkg string) {
 	if l.err != nil {
 		return
 	}
@@ -99,6 +100,10 @@ func (l *Layout) WriteContentNsItem(layoutState LayoutState, nsName string, link
         <div class="ns-item">
             <a name="%s">%s</a>
 		`, link, nsName)
+
+		if pkg != "" {
+			fmt.Fprintf(l.w, `<span class="pkg">[%s]</span>`, pkg)
+		}
 
 		if fileName != "" {
 			fmt.Fprintf(l.w, `<span class="filename">[%s]</span>`, fileName)
@@ -434,7 +439,6 @@ func (l *Layout) depTypeName(parentType *fdep.DepType, typeName string) (ret_typ
 
 	if ft != nil {
 		calc_type_name := ft.FullOriginalName()
-		//ret_type_name = ft.FullOriginalName()
 		if parentType.FileDep != nil && !parentType.FileDep.IsSame(ft.FileDep) {
 			// if not same file, return full name
 			ret_type_name = calc_type_name
@@ -469,7 +473,7 @@ func (l *Layout) concatComment(comment *fproto.Comment) string {
 		for _, cl := range comment.Lines {
 			ln := strings.TrimSpace(cl)
 			if is_start || len(ln) > 0 {
-				rcomments = append(rcomments, cl)
+				rcomments = append(rcomments, html.EscapeString(cl))
 				is_start = true
 			}
 		}
@@ -617,6 +621,12 @@ var (
 
         .body .content .ns-item .filename{
             color: #a0a0a0;
+			font-size: 0.8em;
+			margin-left: 10px;
+        }
+
+        .body .content .ns-item .pkg{
+            color: #90a3f5;
 			font-size: 0.8em;
 			margin-left: 10px;
         }

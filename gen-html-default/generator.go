@@ -105,7 +105,7 @@ func (g *Generator) Generate(dep *fdep.Dep, w io.Writer) error {
 				fn = e.FileDep.FilePath
 			}
 
-			layout.WriteContentNsItem(LS_BEGIN, e.Name, fmt.Sprintf("content-%s-%s-%s", li.layoutItem.String(), slug_ns, slug_nsitem), fn)
+			layout.WriteContentNsItem(LS_BEGIN, e.Name, fmt.Sprintf("content-%s-%s-%s", li.layoutItem.String(), slug_ns, slug_nsitem), fn, e.Alias)
 
 			switch li.layoutItem {
 			case li_service:
@@ -117,7 +117,7 @@ func (g *Generator) Generate(dep *fdep.Dep, w io.Writer) error {
 				layout.WriteContentOneofFields(e, helper.GetOneOfFieldList(e.Item.(*fproto.MessageElement).Fields))
 			}
 
-			layout.WriteContentNsItem(LS_END, e.Name, "", "")
+			layout.WriteContentNsItem(LS_END, e.Name, "", "", "")
 		}
 		if last_alias != "" {
 			layout.WriteContentNs(LS_END, last_alias, "")
