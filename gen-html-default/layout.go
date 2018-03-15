@@ -317,7 +317,15 @@ func (l *Layout) WriteContentOneofFields(dt *fdep.DepType, fields []fproto.Field
 				<a name="%s">Oneof %s.%s</a>
 			</div>`, fmt.Sprintf("content-Oneof-%s-%s", slug.Make(dt.FullOriginalName()), slug.Make(xfld.Name)), dt.Name, xfld.Name)
 
-			fmt.Fprint(l.w, `<div class="definition message">`)
+			fmt.Fprint(l.w, `<div class="definition oneof">`)
+
+			oof_comment := l.concatComment(xfld.Comment)
+
+			if oof_comment != "" {
+				fmt.Fprint(l.w, `<div class="description"><p>`)
+				fmt.Fprintf(l.w, `%s`, oof_comment)
+				fmt.Fprint(l.w, `</p></div>`)
+			}
 
 			l.writeFields(dt, xfld.Fields, "oneof")
 
@@ -396,6 +404,7 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 		case *fproto.OneofFieldElement:
 			fld_type = fmt.Sprint("oneof ")
 			fld_type_link = fmt.Sprintf("content-Oneof-%s-%s", slug.Make(dt.FullOriginalName()), slug.Make(xfld.Name))
+			fld_comment = l.concatComment(xfld.Comment)
 
 			var fextra []string
 			for _, oofld := range xfld.Fields {
@@ -610,7 +619,7 @@ var (
         }
 
         .body .content .ns-itemsub{
-            margin-left: 30px;
+            margin-left: 38px;
             font-size: 1.0em;
 			padding: 8px 0;
         }
@@ -696,6 +705,10 @@ var (
             background-color: white;
             padding: 0px 8px 4px;
             font-size: 1em;
+        }
+
+        .body .content .definition.oneof .description {
+            padding: 0px 16px 0px;
         }
 
         .body .content .definition .list table {
