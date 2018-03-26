@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/RangelReale/fdep"
 	"github.com/RangelReale/fproto"
-	"github.com/RangelReale/fproto/fdep"
 	"github.com/gosimple/slug"
 )
 
@@ -312,7 +312,7 @@ func (l *Layout) WriteContentOneofFields(dt *fdep.DepType, fields []fproto.Field
 
 	for _, fld := range fields {
 		switch xfld := fld.(type) {
-		case *fproto.OneofFieldElement:
+		case *fproto.OneOfFieldElement:
 			fmt.Fprintf(l.w, `<div class="ns-itemsub">
 				<a name="%s">Oneof %s.%s</a>
 			</div>`, fmt.Sprintf("content-Oneof-%s-%s", slug.Make(dt.FullOriginalName()), slug.Make(xfld.Name)), dt.Name, xfld.Name)
@@ -401,7 +401,7 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 			}
 
 			fld_type = fmt.Sprintf("map&lt;%s, %s&gt;", f_key, f_value)
-		case *fproto.OneofFieldElement:
+		case *fproto.OneOfFieldElement:
 			fld_type = fmt.Sprint("oneof ")
 			fld_type_link = fmt.Sprintf("content-Oneof-%s-%s", slug.Make(dt.FullOriginalName()), slug.Make(xfld.Name))
 			fld_comment = l.concatComment(xfld.Comment)

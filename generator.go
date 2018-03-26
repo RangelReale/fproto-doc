@@ -3,7 +3,7 @@ package fproto_doc
 import (
 	"io"
 
-	"github.com/RangelReale/fproto/fdep"
+	"github.com/RangelReale/fdep"
 )
 
 type Generator interface {

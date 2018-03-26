@@ -3,8 +3,8 @@ package fproto_doc
 import (
 	"sort"
 
+	"github.com/RangelReale/fdep"
 	"github.com/RangelReale/fproto"
-	"github.com/RangelReale/fproto/fdep"
 )
 
 // Sort type for filter
@@ -82,7 +82,7 @@ func (g *Helper) GetServiceList(filter *GetFilter) []*fdep.DepType {
 func (g *Helper) GetOneOfFieldList(fields []fproto.FieldElementTag) []fproto.FieldElementTag {
 	var ret []fproto.FieldElementTag
 	for _, fld := range fields {
-		if oofld, is_oneof := fld.(*fproto.OneofFieldElement); is_oneof {
+		if oofld, is_oneof := fld.(*fproto.OneOfFieldElement); is_oneof {
 			ret = append(ret, oofld)
 			ret = append(ret, g.GetOneOfFieldList(oofld.Fields)...)
 		}

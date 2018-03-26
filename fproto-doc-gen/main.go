@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/RangelReale/fdep"
 	"github.com/RangelReale/fproto-doc/gen-html-default"
-	"github.com/RangelReale/fproto/fdep"
 )
 
 type arrayFlags []string

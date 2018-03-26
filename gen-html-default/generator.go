@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/RangelReale/fdep"
 	"github.com/RangelReale/fproto"
 	"github.com/RangelReale/fproto-doc"
-	"github.com/RangelReale/fproto/fdep"
 	"github.com/gosimple/slug"
 )
 
