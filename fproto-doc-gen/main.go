@@ -40,8 +40,6 @@ func main() {
 
 	// create dependency parser
 	parsedep := fdep.NewDep()
-	// Accept not found dependencies, will appear on the output without links
-	parsedep.IgnoreNotFoundDependencies = true
 
 	// add include paths
 	parsedep.IncludeDirs = append(parsedep.IncludeDirs, incPaths...)
