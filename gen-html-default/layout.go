@@ -437,7 +437,7 @@ func (l *Layout) writeFields(dt *fdep.DepType, fields []fproto.FieldElementTag, 
 
 func (l *Layout) depTypeName(parentType *fdep.DepType, typeName string) (ret_type_name string, ret_type_link string, err error) {
 	// load field type
-	ft, err := parentType.GetType(typeName)
+	ft, err := parentType.FindType(typeName)
 	if err != nil {
 		return "", "", err
 	}
