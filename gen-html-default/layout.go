@@ -444,7 +444,7 @@ func (l *Layout) depTypeName(parentType *fdep.DepType, typeName string) (ret_typ
 
 	if ft != nil {
 		calc_type_name := ft.FullOriginalName()
-		if parentType.FileDep != nil && !parentType.FileDep.IsSame(ft.FileDep) {
+		if parentType.DepFile != nil && !parentType.DepFile.IsSame(ft.DepFile) {
 			// if not same file, return full name
 			ret_type_name = calc_type_name
 			/*} else if ft.OriginalAlias != "" {
@@ -452,7 +452,7 @@ func (l *Layout) depTypeName(parentType *fdep.DepType, typeName string) (ret_typ
 		} else {
 			ret_type_name = ft.Name
 		}
-		if !ft.IsScalar() && ft.FileDep.DepType == fdep.DepType_Own {
+		if !ft.IsScalar() && ft.DepFile.DepType == fdep.DepType_Own {
 			switch ft.Item.(type) {
 			case *fproto.EnumElement:
 				ret_type_link = fmt.Sprintf("content-Enum-%s", slug.Make(calc_type_name))

@@ -277,6 +277,6 @@ func (g *Helper) sortTypeValue(sortType SortType, dp *fdep.DepType) string {
 	case ST_NAME:
 		return dp.Name
 	default:
-		return dp.FileDep.FilePath + "." + dp.Alias + "." + dp.Name
+		return dp.DepFile.FilePath + "." + dp.Alias + "." + dp.Name
 	}
 }

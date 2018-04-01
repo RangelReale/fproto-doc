@@ -101,8 +101,8 @@ func (g *Generator) Generate(dep *fdep.Dep, w io.Writer) error {
 
 			slug_nsitem := slug.Make(e.Name)
 			fn := ""
-			if e.FileDep != nil {
-				fn = e.FileDep.FilePath
+			if e.DepFile != nil {
+				fn = e.DepFile.FilePath
 			}
 
 			layout.WriteContentNsItem(LS_BEGIN, e.Name, fmt.Sprintf("content-%s-%s-%s", li.layoutItem.String(), slug_ns, slug_nsitem), fn, e.Alias)
